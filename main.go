@@ -64,7 +64,7 @@ func parseFlagsSanely() {
 	if options.portspec == "" {
 		options.portspec = defaultPortSpec
 	}
-	if strings.Contains(options.portspec, ":") {
+	if !strings.Contains(options.portspec, ":") {
 		options.portspec = ":" + options.portspec
 	}
 }
