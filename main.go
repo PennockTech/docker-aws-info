@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -41,21 +42,37 @@ func addSection(w io.Writer, path string) error {
 	return err
 }
 
+func showError(w io.Writer, path string, err error) {
+	fmt.Fprintf(w, "\n<h3 class=\"error\">%s</h3>\n<div class=\"error errmsg\">%s</div>\n",
+		template.HTMLEscapeString(path), template.HTMLEscapeString(err.Error()))
+}
+
 func AddSection(w io.Writer, path string) {
 	if err := addSection(w, path); err != nil {
-		fmt.Fprintf(w, "\n<h3 class=\"error\">%s</h3>\n<div class=\"error errmsg\">%s</div>\n",
-			template.HTMLEscapeString(path), template.HTMLEscapeString(err.Error()))
+		showError(w, path, err)
 	}
 }
 
 func rootHandle(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "<html><head><title>AWS Info Dumper</title></head><body><h1>AWS Info Dumper</h1>\n")
-	for _, section := range []string{
-		"hostname",
-		"placement/availability-zone",
-		"iam/info",
-	} {
-		AddSection(w, section)
+	if p := os.Getenv("ECS_CONTAINER_METADATA_FILE"); p != "" {
+		io.WriteString(w, "<h2>ECS metadata from file</h2>\n")
+		contents, err := ioutil.ReadFile(p)
+		if err != nil {
+			showError(w, p, err)
+		} else {
+			fmt.Fprintf(w, "\n<h3>%s</h3>\n", template.HTMLEscapeString(p))
+			template.HTMLEscape(w, contents)
+		}
+	} else {
+		io.WriteString(w, "<h2>AWS metadata service (HTTP requests)</h2>\n")
+		for _, section := range []string{
+			"hostname",
+			"placement/availability-zone",
+			"iam/info",
+		} {
+			AddSection(w, section)
+		}
 	}
 }
 
