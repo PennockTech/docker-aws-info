@@ -13,7 +13,8 @@ There's an integration setup to auto-build this on Quay, but they don't
 support ARG in Dockerfile so it doesn't work as present.  If you see an image
 available as `quay.io/pennocktech/docker-aws-info` but this paragraph still
 says it's broken, please report that to us!  (It means Quay now handle newer
-Dockerfile features).
+Dockerfile features).  We're leaving it deliberately-broken, as a test to see
+when Quay might become suitable for our use-cases.
 
 A manual version was setup on Docker Hub, using a different name.
 (See above re quick and dirty hack).  `pennocktech/aws-basic-info` is manually
