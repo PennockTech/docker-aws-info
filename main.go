@@ -77,6 +77,10 @@ func rootHandle(w http.ResponseWriter, req *http.Request) {
 }
 
 func parseFlagsSanely() {
+	envPort := os.Getenv("PORT")
+	if envPort != "" {
+		options.portspec = envPort
+	}
 	flag.Parse()
 	if options.portspec == "" {
 		options.portspec = defaultPortSpec
