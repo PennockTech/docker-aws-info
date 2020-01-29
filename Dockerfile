@@ -1,13 +1,19 @@
-ARG BUILDER_IMAGE="golang:1.9.4"
+ARG BUILDER_IMAGE="golang:1.13.7"
+ARG RUNTIME_BASE_IMAGE="scratch"
+ARG PORT=8080
+
+# =============================8< Builder >8==============================
+
 FROM ${BUILDER_IMAGE} AS builder
 
 ADD . /go/src/go.pennock.tech/docker-aws-info
 WORKDIR /go/src/go.pennock.tech/docker-aws-info
 RUN CGO_ENABLED=0 GOOS=linux go build -tags "docker" -ldflags -s .
 
-ARG RUNTIME_BASE_IMAGE="scratch"
+# ===========================8< Final Image >8============================
+
 FROM ${RUNTIME_BASE_IMAGE}
-ARG PORT=8080
+ARG PORT
 ENV PORT=${PORT}
 
 COPY --from=builder /go/src/go.pennock.tech/docker-aws-info/docker-aws-info /
@@ -17,8 +23,8 @@ CMD ["/docker-aws-info"]
 EXPOSE ${PORT}
 
 # ARG repetition because Docker doesn't let you mark one as persisting across contexts
-ARG BUILDER_IMAGE="golang:1.9.4"
-ARG RUNTIME_BASE_IMAGE="scratch"
+ARG BUILDER_IMAGE
+ARG RUNTIME_BASE_IMAGE
 LABEL maintainer="noc+di@pennock-tech.com"
 LABEL tech.pennock.builder.image="${BUILDER_IMAGE}"
 LABEL tech.pennock.baseimage="${RUNTIME_BASE_IMAGE}"
