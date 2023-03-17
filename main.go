@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -40,7 +39,7 @@ func addSection(ctx context.Context, w io.Writer, path string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -69,7 +68,7 @@ func rootHandle(w http.ResponseWriter, req *http.Request) {
 	defer cancel()
 	if p := os.Getenv("ECS_CONTAINER_METADATA_FILE"); p != "" {
 		io.WriteString(w, "<h2>ECS metadata from file</h2>\n")
-		contents, err := ioutil.ReadFile(p)
+		contents, err := os.ReadFile(p)
 		if err != nil {
 			showError(w, p, err)
 		} else {
